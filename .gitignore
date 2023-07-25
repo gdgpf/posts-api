@@ -1,0 +1,6 @@
+go.sum
+adapter/http/rest/docs
+
+tmp
+
+config.json

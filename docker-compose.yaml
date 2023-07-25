@@ -1,0 +1,54 @@
+version: "3"
+services:
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3000:3000
+      - 9001:9001
+    depends_on: 
+      - postgres
+    volumes:
+      - ./:/api
+      - ./scripts:/scripts
+    networks:
+      - backend
+
+  postgres:
+    restart: always
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: dbdev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      # - ./database/postgres/scripts/db:/docker-entrypoint-initdb.d/
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - backend
+
+networks: 
+  backend:
+    driver: bridge
+
+volumes:
+  pgadmin:
+  postgres:
