@@ -1,0 +1,20 @@
+FROM golang:1.20.2
+
+RUN apt update && apt upgrade -y && \
+    apt install -y git \
+    make openssh-client
+
+WORKDIR /api
+
+RUN go install github.com/swaggo/swag/cmd/swag@v1.8.4
+
+RUN go install github.com/cosmtrek/air@latest
+
+ENV DOCKERIZE_VERSION v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
+ENTRYPOINT ["dockerize", "-wait", "tcp://postgres:5432", "-timeout", "20s"]
+
+CMD /scripts/change_vars_config.sh /api && air
